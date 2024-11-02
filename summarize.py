@@ -19,6 +19,10 @@ from collections.abc import Callable
 from typing import TextIO
 
 
+# sample = ["Hello, this is a sentence!", "Hmm... How do I talk about a woodchuck?",
+#         "If a woodchuck could chuck wood, how much wood could he chuck?"]
+
+
 def load_document(textfile: TextIO) -> list[str]:
     """Reads a text file and returns a list of sentences"""
     text = [line.strip() for line in textfile.readlines()]
@@ -31,8 +35,15 @@ def clean_text(text: list[str]) -> list[list[str]]:
     """Transform text into a list of terms for each sentence"""
     sentences: list[list[str]] = []
     for line in text:
+        # Creates list of terms/words
         sentence = [word.casefold()
                     for word in nltk.word_tokenize(line)]
+        # Removes terms that are not alphanumeric.
+        for word in sentence:
+            if word.isalnum():
+                continue
+            else: sentence.remove(word)
+        # If the resulting list/sentence is non-empty, add to final list
         if len(sentence) > 0:
             sentences.append(sentence)
     return sentences
@@ -45,6 +56,21 @@ def calculate_tf(sentences: list[list[str]]) -> list[dict]:
     Returns a table whose keys are the indices of sentences of the text
     and values are dictionaries of terms and their tf values."""
     matrix: list[dict] = []
+
+    for sentence in sentences:
+        temp_dict = {}
+        for word in sentence:
+            if word not in temp_dict:
+                temp_dict[word] = 1
+            else:
+                temp_dict[word] += 1
+        matrix.append(temp_dict)
+
+    for entry in matrix:
+        term_count = len(entry)
+        for term in entry:
+            entry[term] = entry[term] / term_count
+
     return matrix
 
 
@@ -53,6 +79,15 @@ def calculate_idf(sentences: list[list[str]]) -> dict[str, float]:
     """Calculate the Inverse `Document'(Sentence) Frequency of each term.
     Returns a table of terms and their idf values."""
     matrix: dict[str, float] = defaultdict(float)
+    doc_len = len(sentences)
+
+    for sentence in sentences:
+        for word in sentence:
+            if word not in matrix:
+                matrix[word] = 1/doc_len
+            else:
+                matrix[word] += 1/doc_len
+
     return matrix
 
 
@@ -63,6 +98,16 @@ def score_sentences(tf_matrix: list[dict], idf_matrix: dict[str, float], sentenc
     Returns a table whose keys are the indices of sentences of the text
     and values are the sum of tf-idf scores of each word in the sentence"""
     scores: list[float] = []
+
+    for n, sentence in enumerate(sentences):
+        sent_score = 0
+        for word in sentence:
+            temp_score = 0
+            temp_score += tf_matrix[n][word] * idf_matrix[word]
+
+            sent_score += temp_score
+        scores.append(sent_score)
+
     return scores
 
 
