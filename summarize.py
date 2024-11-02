@@ -30,7 +30,6 @@ def load_document(textfile: TextIO) -> list[str]:
     return text
 
 
-# [TODO] Remove non-word symbols from terms, maybe more?
 def clean_text(text: list[str]) -> list[list[str]]:
     """Transform text into a list of terms for each sentence"""
     sentences: list[list[str]] = []
@@ -50,13 +49,14 @@ def clean_text(text: list[str]) -> list[list[str]]:
 
                 
 
-# [TODO] Implement Term Frequency calculation for document, term
 def calculate_tf(sentences: list[list[str]]) -> list[dict]:
     """Calculate Term Frequency for each sentence of the document
     Returns a table whose keys are the indices of sentences of the text
     and values are dictionaries of terms and their tf values."""
     matrix: list[dict] = []
 
+    # Adds dictionary of words and the repetition count
+    # for each sentence
     for sentence in sentences:
         temp_dict = {}
         for word in sentence:
@@ -66,6 +66,8 @@ def calculate_tf(sentences: list[list[str]]) -> list[dict]:
                 temp_dict[word] += 1
         matrix.append(temp_dict)
 
+    # Goes through previous dictionaries
+    # Adjusts value weights into total count / length of sentence
     for entry in matrix:
         term_count = len(entry)
         for term in entry:
@@ -74,13 +76,14 @@ def calculate_tf(sentences: list[list[str]]) -> list[dict]:
     return matrix
 
 
-# [TODO] Implement Inverse Document Frequency for term
 def calculate_idf(sentences: list[list[str]]) -> dict[str, float]:
     """Calculate the Inverse `Document'(Sentence) Frequency of each term.
     Returns a table of terms and their idf values."""
     matrix: dict[str, float] = defaultdict(float)
     doc_len = len(sentences)
 
+    # Goes through document and finds relative frequency
+    # across whole corpus
     for sentence in sentences:
         for word in sentence:
             if word not in matrix:
@@ -91,7 +94,6 @@ def calculate_idf(sentences: list[list[str]]) -> dict[str, float]:
     return matrix
 
 
-# [TODO] Implement sentence scoring
 def score_sentences(tf_matrix: list[dict], idf_matrix: dict[str, float], sentences: list[list[str]]) -> list[float]:
     """Score each sentence for importance based on the terms it contains.
     Assumes that there are no empty sentences.
@@ -99,13 +101,16 @@ def score_sentences(tf_matrix: list[dict], idf_matrix: dict[str, float], sentenc
     and values are the sum of tf-idf scores of each word in the sentence"""
     scores: list[float] = []
 
+    # Create indices for sentences
     for n, sentence in enumerate(sentences):
         sent_score = 0
+        # Goes through each word and finding its value
         for word in sentence:
             temp_score = 0
             temp_score += tf_matrix[n][word] * idf_matrix[word]
-
+        # Adds word value to sentence value
             sent_score += temp_score
+        # Adds sentence total value to final list
         scores.append(sent_score)
 
     return scores
