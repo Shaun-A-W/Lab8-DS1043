@@ -10,8 +10,10 @@ Completed by Shaun W. for Lab 8."""
 import summarize as sum
 from summarize import clean_text
 
+# Switch for all test functions. IF statement at end of document
 test_switch = True
 
+# Variables to be used for testing. Cross-referenced with manual calculation
 sample_1 = ["Hello, this is a sentence!",
             "Do woodchucks chuck wood?"]
 sample_2 = ["How is the weather?",

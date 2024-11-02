@@ -108,7 +108,7 @@ def score_sentences(tf_matrix: list[dict], idf_matrix: dict[str, float], sentenc
         for word in sentence:
             temp_score = 0
             temp_score += tf_matrix[n][word] * idf_matrix[word]
-        # Adds word value to sentence value
+            # Adds word value to sentence value
             sent_score += temp_score
         # Adds sentence total value to final list
         scores.append(sent_score)
